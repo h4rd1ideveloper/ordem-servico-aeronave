@@ -5,9 +5,9 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-clipboard-list"></i> Ordens de Serviço</h1>
-    <a href="{{ route('ordem-servico.create') }}" class="btn btn-primary">
+   {{-- <a href="{{ route('ordem-servico.create') }}" class="btn btn-primary">
         <i class="fas fa-plus"></i> Nova OS
-    </a>
+    </a>--}}
 </div>
 
 @if($ordensServico->count() > 0)
@@ -37,19 +37,19 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <a href="{{ route('ordem-servico.show', $os->id) }}" 
+                                    <a href="{{ route('ordem-servico.show', $os->id) }}"
                                        class="btn btn-sm btn-outline-primary" title="Visualizar">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('ordem-servico.edit', $os->id) }}" 
+                                   {{-- <a href="{{ route('ordem-servico.edit', $os->id) }}"
                                        class="btn btn-sm btn-outline-warning" title="Editar">
                                         <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="{{ route('ordem-servico.pdf', $os->id) }}" 
+                                    </a>--}}
+                                    <a href="{{ route('ordem-servico.pdf', $os->id) }}"
                                        class="btn btn-sm btn-outline-success" title="Gerar PDF" target="_blank">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
-                                    <a href="{{ route('ordem-servico.download', $os->id) }}" 
+                                    <a href="{{ route('ordem-servico.download', $os->id) }}"
                                        class="btn btn-sm btn-outline-info" title="Download PDF">
                                         <i class="fas fa-download"></i>
                                     </a>
@@ -67,10 +67,10 @@
         <div class="card-body text-center">
             <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
             <h4>Nenhuma Ordem de Serviço encontrada</h4>
-            <p class="text-muted">Comece criando sua primeira Ordem de Serviço.</p>
+           {{-- <p class="text-muted">Comece criando sua primeira Ordem de Serviço.</p>
             <a href="{{ route('ordem-servico.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Criar primeira OS
-            </a>
+            </a>--}}
         </div>
     </div>
 @endif

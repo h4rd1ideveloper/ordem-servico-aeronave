@@ -13,6 +13,17 @@ if [ ! -f /var/www/html/database/database.sqlite ]; then
     chown www-data:www-data /var/www/html/database/database.sqlite
 fi
 
+# Criar diretórios de cache e sessão se não existirem
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/framework/cache/data
+mkdir -p /var/www/html/storage/framework/views
+
+# Definir permissões para storage e cache
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/bootstrap/cache
+
 # Executar migrations
 echo "Executando migrations..."
 php artisan migrate --force
@@ -50,4 +61,3 @@ echo ""
 # Iniciar Apache
 echo "Iniciando servidor web..."
 apache2-foreground
-

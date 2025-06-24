@@ -17,9 +17,9 @@
                 <a class="nav-link" href="{{ route('ordem-servico.index') }}">
                     <i class="fas fa-list"></i> Listar OS
                 </a>
-                <a class="nav-link" href="{{ route('ordem-servico.create') }}">
+               {{-- <a class="nav-link" href="{{ route('ordem-servico.create') }}">
                     <i class="fas fa-plus"></i> Nova OS
-                </a>
+                </a>--}}
             </div>
         </div>
     </nav>
