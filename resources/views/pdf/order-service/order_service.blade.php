@@ -23,7 +23,7 @@
                             <p style="font-size: 14px;">{{ $order_service->number_form }}</p>
                         @endif
                         @if (isset($order_service->date_form) && !is_null($order_service->date_form))
-                            <p style="font-size: 14px;">{{ $order_service->date_form->format($format_date) }}</p>
+                            <p style="font-size: 14px;">{{\Carbon\Carbon::parse($order_service->date_form)->format('d/m/Y')}}</p>
                         @endif
                     </td>
                 </tr>
@@ -75,7 +75,7 @@
                                     <tr>
                                         <td width="20%">
                                             <p style="margin: 0;padding:0;font-size:12px;text-align:left;">TSN:
-                                                @include('components.aircraft_component_status', [
+                                                @include('pdf.order-service.components.aircraft_component_status', [
                                                     'status' => $component->tsn_status,
                                                     'value' => $component->tsn,
                                                 ])
@@ -83,7 +83,7 @@
                                         </td>
                                         <td width="20%">
                                             <p style="margin: 0;padding:0;font-size:12px;text-align:left;">TSO:
-                                                @include('components.aircraft_component_status', [
+                                                @include('pdf.order-service.components.aircraft_component_status', [
                                                     'status' => $component->tso_status,
                                                     'value' => $component->tso,
                                                 ])
@@ -91,7 +91,7 @@
                                         </td>
                                         <td width="30%">
                                             <p style="margin: 0;padding:0;font-size:12px;text-align:left;">CSN:
-                                                @include('components.aircraft_component_status', [
+                                                @include('pdf.order-service.components.aircraft_component_status', [
                                                     'status' => $component->group === \App\Constants::GROUP_PROPELLERS ? null : $component->csn_status,
                                                     'value' => $component->group === \App\Constants::GROUP_PROPELLERS ? null : $component->csn,
                                                 ])
@@ -99,7 +99,7 @@
                                         </td>
                                         <td width="30%">
                                             <p style="margin: 0;padding:0;font-size:12px;text-align:left;">CSO:
-                                                @include('components.aircraft_component_status', [
+                                                @include('pdf.order-service.components.aircraft_component_status', [
                                                     'status' => $component->group === \App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
                                                     'value' => $component->group === \App\Constants::GROUP_PROPELLERS ? null : $component->cso,
                                                 ])
@@ -141,7 +141,7 @@
                         @if (!is_null($order_service->date_start))
                             <p style="margin: 0;padding:0;font-size:14px;text-align:center;">
                                 Data de Início:
-                                {{ $order_service->date_start->format($format_date) }}
+                                {{ \Carbon\Carbon::parse($order_service->date_start)->format('d/m/Y')}}
                             </p>
                         @endif
                     </td>
@@ -149,7 +149,7 @@
                         @if (!is_null($order_service->date_end))
                             <p style="margin: 0;padding:0;font-size:14px;text-align:center;">
                                 Término Previsto:
-                                {{ $order_service->date_end->format($format_date) }}
+                                {{ \Carbon\Carbon::parse($order_service->date_end)->format('d/m/Y')}}
                             </p>
                         @endif
                     </td>
@@ -228,7 +228,8 @@
                         <h4 style="text-align: center;">DECLARAÇÃO DE AERONAVEGABILIDADE</h4> <br />
                         @if (isset($order_service->closed_at) && !is_null($order_service->closed_at))
                             <span class="text-center" style="font-size:14px;display:block">OS encerrada na data de:
-                                {{ $order_service->closed_at->format($format_date) }}</span>
+                                {{\Carbon\Carbon::parse($order_service->closed_at)->format('d/m/Y')}}
+                            </span>
                             <br />
                         @endif
 
