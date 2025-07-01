@@ -51,17 +51,17 @@ class PdfService
 
         return $pdfContent;
     }
-    public function generateOrderServicePdf(OrderService $ordemServico)
+    public function generateOrderServicePdf(OrderService $order_service)
     {
         // Renderizar o HTML usando Blade
-        $html = View::make('pdf.order-service.order_service', compact('ordemServico'))->render();
+        $html = View::make('pdf.order-service.order_service', compact('order_service'))->render();
 
         // Criar arquivo HTML temporário
-        $tempHtmlFile = storage_path('app/temp_os_' . $ordemServico->id . '.html');
+        $tempHtmlFile = storage_path('app/temp_os_' . $order_service->id . '.html');
         file_put_contents($tempHtmlFile, $html);
 
         // Criar arquivo PDF temporário
-        $tempPdfFile = storage_path('app/temp_os_' . $ordemServico->id . '.pdf');
+        $tempPdfFile = storage_path('app/temp_os_' . $order_service->id . '.pdf');
 
         // Comando wkhtmltopdf (usar wrapper no Docker se disponível)
         $wkhtmltopdfCmd = env('WKHTMLTOPDF_CMD', 'wkhtmltopdf');
