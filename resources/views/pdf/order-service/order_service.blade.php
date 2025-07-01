@@ -1,15 +1,15 @@
 @extends('layouts.base_pdf', [
     'title' => 'Order service',
 ])
-
+<?php
+/** @var \App\DTO\OrderService $order_service */
+?>
 @section('content')
     <div style="padding:10px;">
             <table style="border: 1px solid #ddd;width:100%;border-collapse: collapse;">
                 <tr align="center">
                     <td style="border: 1px solid #ddd;padding:16px;vertical-align: middle" align="center" width="15%">
-                        @if (!\App::environment('local') && !is_null($order_service->garage->url_logo))
-                            <img src="{{ $order_service->garage->url_logo }}" alt="Logo da oficina" height="80" style="text-align:center">
-                        @endif
+                        <img src="https://mxgo-storage.s3.us-east-1.amazonaws.com/documents/bLxQ3TIv5Po42S6saYqbnjx6fv5jzm9cOpbbqeJs.png" alt="Logo da oficina" height="80" style="text-align:center">
                     </td>
                     <td style="border: 1px solid #ddd;padding:16px;vertical-align: middle;" align="center" width="100%">
                         <h3 style="margin:0;font-weight:bold;vertical-align: middle;">
@@ -66,10 +66,10 @@
                                                 {{ $component->manufacturer }}</p>
                                         </td>
                                         <td width="30%">
-                                            @if ($component->component == App\Constants::COMPONENT_AIRFRAME)
+                                           {{-- @if ($component->component == App\Constants::COMPONENT_AIRFRAME)--}}
                                                 <p style="margin: 0;padding:0;font-size:12px;text-align:left;">Ano de Fabricação:
                                                     {{ $order_service->year_manufacture }}</p>
-                                            @endif
+                                            @{{--endif--}}
                                         </td>
                                     </tr>
                                     <tr>
@@ -98,7 +98,7 @@
                                             </p>
                                         </td>
                                         <td width="30%">
-                                            <p style="margin: 0;padding:0;font-size:12px;text-align:left;">CSO:                                    
+                                            <p style="margin: 0;padding:0;font-size:12px;text-align:left;">CSO:
                                                 @include('components.aircraft_component_status', [
                                                     'status' => $component->group === \App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
                                                     'value' => $component->group === \App\Constants::GROUP_PROPELLERS ? null : $component->cso,
@@ -109,7 +109,7 @@
                                     <tr class="font-12">
                                         <td style="border: none!important;" colspan="5">
                                             <p style="margin: 0;padding:0;font-size:12px;text-align:left;">
-                                                Revisão: 
+                                                Revisão:
                                                 @if($component->group === \App\Constants::GROUP_PROPELLERS && !$order_service->has_propeller)
                                                     N/A
                                                 @else
@@ -168,7 +168,7 @@
                 $items = $order_service->items->filter(fn ($item) => $item->type === \App\Constants::SERVICE)->values();
             @endphp
 
-            
+
             <table style="border: 1px solid #ddd;width:100%;border-collapse: collapse;">
                 @foreach ($items as $key => $item)
                     <tr>
@@ -179,7 +179,7 @@
                             <p style="margin: 0;padding:0;font-size:14px;">
                                 {{ $item->description }}
                             </p>
-                            
+
                             <p style="margin: 0;padding:0;font-size:12px;">
                                 @if (isset($item->pn) && !is_null($item->pn))
                                     <span>PN: {{ $item->pn }}</span>
@@ -264,7 +264,7 @@
                         <br/>
                         <span style="text-align: center;display:block">_________________________________________________________</span>
                         <br/>
-                        
+
                         <p>Assinatura do Inspetor Responsável</p>
                         <p style="font-size: 14px;">
                             @if (!is_null($order_service->responsible_user))

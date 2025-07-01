@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\DTO\Garage;
+use App\DTO\Revision;
 use RuntimeException;
 use App\DTO\OrderService;
 use App\DTO\AircraftComponent;
@@ -123,7 +125,79 @@ class JsonHelpers
                     traceabilitys: $i['traceabilitys'],
                     tools: $i['tools'],
                 );
-        }, $order['items']),);
+        }, $order['items']),
+            garage: new Garage(
+                uuid: $order['garage']['uuid'],
+                name: $order['garage']['name'],
+                document: $order['garage']['document'],
+                email: $order['garage']['email'],
+                phone_1: $order['garage']['phone_1'],
+                phone_2: $order['garage']['phone_2'],
+                full_address: $order['garage']['full_address'],
+                street: $order['garage']['street'],
+                number: $order['garage']['number'],
+                neighborhood: $order['garage']['neighborhood'],
+                city: $order['garage']['city'],
+                state: $order['garage']['state'],
+                zipcode: $order['garage']['zipcode'],
+                status: $order['garage']['status'],
+                maintenance_organization_certificate: $order['garage']['maintenance_organization_certificate'],
+                operational_specifications_certificate: $order['garage']['operational_specifications_certificate'],
+                articles_of_association: $order['garage']['articles_of_association'],
+                rejection_message: $order['garage']['rejection_message'],
+                licence_number: $order['garage']['licence_number'],
+                url_logo: $order['garage']['url_logo'],
+                web_site: $order['garage']['web_site'],
+                representative_garage: $order['garage']['representative_garage'],
+                owner: $order['garage']['owner']
+            ),
+            uuid: $order['uuid'],
+            customer_name: $order['customer_name'],
+            customer_email: $order['customer_email'],
+            customer_phone: $order['customer_phone'],
+            created_at: $order['created_at'],
+            updated_at: $order['updated_at'],
+            status: $order['status'],
+            can_edit: $order['can_edit'],
+            year_manufacture: $order['year_manufacture'],
+            has_propeller: $order['has_propeller'],
+            total: $order['total'],
+            total_services: $order['total_services'],
+            total_parts: $order['total_parts'],
+            operator_name: $order['operator_name'],
+            operator_email: $order['operator_email'],
+            operator_phone: $order['operator_phone'],
+            responsible_user_id: $order['responsible_user_id'],
+            responsible_user: $order['responsible_user'],
+            cancellation: $order['cancellation'],
+            number_form: $order['number_form'],
+            date_start: $order['date_start'],
+            date_end: $order['date_end'],
+            date_form: $order['date_form'],
+            closed_at: $order['closed_at'],
+            closed_by: $order['closed_by'],
+            notes: $order['notes'],
+            url: $order['url'],
+            local: $order['local'],
+            file_discrepancy: $order['file_discrepancy'],
+            file_discrepancy_signed: $order['file_discrepancy_signed'],
+            file_signed_uploaded_at: $order['file_signed_uploaded_at'],
+            type_airworthiness: $order['type_airworthiness'],
+            type_inspection: $order['type_inspection'],
+            description_discrepancy: $order['description_discrepancy'],
+            responsible_name_discrepancy: $order['responsible_name_discrepancy'],
+            responsible_licence_discrepancy: $order['responsible_licence_discrepancy'],
+            operator_name_discrepancy: $order['operator_name_discrepancy'],
+            operator_licence_discrepancy: $order['operator_licence_discrepancy'],
+            revisions: array_map(fn($r) => new Revision(
+                id: $r['id'],
+                group: $r['group'],
+                name: $r['name'],
+                manual: $r['manual'],
+                pn: $r['pn']
+            ), $order['revisions']),
+            tools: $order['tools'],
+        );
     }
 }
 
