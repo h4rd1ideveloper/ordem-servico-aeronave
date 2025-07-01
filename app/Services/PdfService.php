@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\DTO\OrderService;
+use App\DTO\OrderServiceDto;
 use App\Models\OrdemServico;
 use Illuminate\Support\Facades\View;
 
@@ -51,7 +51,7 @@ class PdfService
 
         return $pdfContent;
     }
-    public function generateOrderServicePdf(OrderService $order_service)
+    public function generateOrderServicePdf(OrderServiceDto $order_service)
     {
         // Renderizar o HTML usando Blade
         $html = View::make('pdf.order-service.order_service', compact('order_service'))->render();
