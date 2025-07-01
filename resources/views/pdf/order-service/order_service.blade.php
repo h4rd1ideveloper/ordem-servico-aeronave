@@ -1,6 +1,7 @@
-@extends('layouts.base_pdf', [
+@extends('pdf.order-service.layouts.base_pdf', [
     'title' => 'Order service',
 ])
+
 <?php
 /** @var \App\DTO\OrderServiceDto $order_service */
 ?>
