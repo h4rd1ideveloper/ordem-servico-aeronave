@@ -17,6 +17,8 @@ use App\Http\Controllers\OrdemServicoController;
 Route::get('/', function () {
     return redirect()->route('ordem-servico.index');
 });
+Route::get('order-service', [OrdemServicoController::class, 'generateOrderServicePdf'])
+    ->name('order-service.generate');
 
 // Rotas para Ordem de Serviço
 Route::resource('ordem-servico', OrdemServicoController::class);
@@ -24,7 +26,7 @@ Route::resource('ordem-servico', OrdemServicoController::class);
 // Rotas específicas para PDF
 Route::get('ordem-servico/{id}/pdf', [OrdemServicoController::class, 'generatePdf'])
     ->name('ordem-servico.pdf');
-    
+
 Route::get('ordem-servico/{id}/download', [OrdemServicoController::class, 'downloadPdf'])
     ->name('ordem-servico.download');
 
