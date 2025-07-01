@@ -54,7 +54,7 @@ class PdfService
     public function generateOrderServicePdf(OrderService $ordemServico)
     {
         // Renderizar o HTML usando Blade
-        $html = View::make('pdf.order-service', compact('ordemServico'))->render();
+        $html = View::make('pdf.order-service.order_service', compact('ordemServico'))->render();
 
         // Criar arquivo HTML temporário
         $tempHtmlFile = storage_path('app/temp_os_' . $ordemServico->id . '.html');
