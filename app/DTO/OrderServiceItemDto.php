@@ -37,5 +37,6 @@ class OrderServiceItemDto
         public readonly ?Carbon $date_start = null,
         public readonly ?Carbon $date_end = null,
         public readonly ?Collection $team = new Collection([]),
+        public readonly ?string $team_text = null,
     ) {}
 }

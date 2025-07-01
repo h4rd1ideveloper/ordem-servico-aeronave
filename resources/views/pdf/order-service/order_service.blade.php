@@ -218,7 +218,7 @@
 
                         <p style="margin: 0;padding:0;font-size:12px;">
                             Equipe:
-                            {{ $item->team_text }}
+                            {{ $item?->team_text }}
                         </p>
 
                     </td>

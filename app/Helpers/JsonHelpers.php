@@ -10,6 +10,7 @@ use App\DTO\OrderServiceDto;
 use App\DTO\OrderServiceItemDto;
 use App\DTO\OrderServiceProgressDto;
 use App\DTO\OrderServiceResponsibleDto;
+use App\DTO\Revision;
 use Illuminate\Support\Carbon;
 use RuntimeException;
 
@@ -141,7 +142,8 @@ class JsonHelpers
                 ):NULL,
                 date_start: isset($i['date_start']) ? Carbon::parse($i['date_start']) : null,
                 date_end: isset($i['date_end']) ? Carbon::parse($i['date_end']) : null,
-                team: isset($i['team']) ? collect($i['team']) : collect([])
+                team: isset($i['team']) ? collect($i['team']) : collect([]),
+                team_text: $i['team_text'] ?? null,
             ), $order['items'])),
             uuid: $order['uuid'],
             customer_name: $order['customer_name'],
@@ -222,7 +224,15 @@ class JsonHelpers
             responsible_licence_discrepancy: $order['responsible_licence_discrepancy'] ?? null,
             operator_name_discrepancy: $order['operator_name_discrepancy'] ?? null,
             operator_licence_discrepancy: $order['operator_licence_discrepancy'] ?? null,
-            revisions: isset($order['revisions']) ? collect($order['revisions']) : collect([])
+            revisions: isset($order['revisions'])
+                ? collect(array_map(fn($r) => new Revision(
+                    id: $r['id'],
+                    group: $r['group'],
+                    name: $r['name'],
+                    manual: $r['manual'],
+                    pn: $r['pn']
+                ), $order['revisions']))
+                : collect([])
         );
 
     }
