@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\JsonHelpers;
 use App\Models\OrdemServico;
 use App\Services\PdfService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -37,6 +39,21 @@ class OrdemServicoController extends Controller
         return response($pdf, 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="OS_' . $ordemServico->numero_os . '.pdf"');
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function generateOrderServicePdf()
+    {
+
+        $ordemServico = JsonHelpers::getOrderServiceData();
+
+        $pdf = $this->pdfService->generateOrderServicePdf($ordemServico);
+
+        return response($pdf, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="OS_' . $ordemServico->code . '.pdf"');
     }
 
     public function downloadPdf($id)
