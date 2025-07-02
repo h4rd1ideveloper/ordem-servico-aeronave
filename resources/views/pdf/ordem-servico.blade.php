@@ -1,9 +1,12 @@
+<?php
+/** @var \App\DTO\OrderServiceDto $order_service */
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordem de Serviço {{ $ordemServico->numero_os }}</title>
+    <title>Ordem de Serviço {{ $order_service?->number_form??$order_service->code_text }}</title>
     <style>
         @page {
             margin: 1cm 1cm 1cm 1cm;
@@ -27,7 +30,7 @@
             display: table;
             width: 100%;
             table-layout: fixed;
-            border: 2px solid #000;
+            border: 1px solid #000;
             margin-bottom: 10px;
             page-break-inside: avoid;
         }
@@ -44,10 +47,14 @@
         }
 
         .logo-cell {
-            width: 15%;
+            width: 25%;
             text-align: center;
             font-weight: bold;
             font-size: 14px;
+            border: 1px solid #ddd;
+            padding:16px;
+            vertical-align: middle;
+
         }
 
         .company-cell {
@@ -66,7 +73,7 @@
         }
 
         .doc-cell {
-            width: 25%;
+            width: 20%;
             text-align: center;
         }
 
@@ -84,7 +91,7 @@
             display: table;
             width: 100%;
             table-layout: fixed;
-            border: 2px solid #000;
+            border: 1px solid #000;
             margin-bottom: 10px;
             page-break-inside: avoid;
         }
@@ -266,17 +273,23 @@
 <!-- Cabeçalho principal (apenas primeira página) -->
 <div class="header">
     <div class="header-row">
-        <div class="header-cell logo-cell">
-            MTX<br>
-            <small>AVIATION</small>
+        <div class="header-cell logo-cell" align="center" >
+            <img
+                src="https://mxgo-storage.s3.us-east-1.amazonaws.com/documents/bLxQ3TIv5Po42S6saYqbnjx6fv5jzm9cOpbbqeJs.png"
+                alt="Logo da oficina" height="80" style="text-align:center;object-fit:contain">
         </div>
         <div class="header-cell company-cell">
-            <div class="company-name">{{ $ordemServico->empresa_nome }}</div>
-            <div class="company-address">{{ $ordemServico->empresa_endereco }}</div>
+            <div class="company-name"> {{ $order_service->garage->name }}</div>
+            <div class="company-address">{{ $order_service->garage->city }}/{{ $order_service->garage->state }} - COM
+                {{ $order_service->garage->licence_number }}/ANAC</div>
         </div>
         <div class="header-cell doc-cell">
-            <div class="doc-code">{{ $ordemServico->documento_codigo }}</div>
-            <div class="doc-date">{{ $ordemServico->documento_data->format('d/m/Y') }}</div>
+            <div class="doc-code"> @if (isset($order_service->number_form) && !is_null($order_service->number_form))
+                    {{ $order_service->number_form }}
+                @endif</div>
+            <div class="doc-date">@if (isset($order_service->date_form) && !is_null($order_service->date_form))
+                    {{\Carbon\Carbon::parse($order_service->date_form)->format('d/m/Y')}}
+                @endif</div>
         </div>
     </div>
 </div>
@@ -285,124 +298,75 @@
 <div class="os-info">
     <div class="os-row">
         <div class="os-cell os-number">
-            OS #{{ $ordemServico->numero_os }}
+            OS
+            {{ $order_service->code_text }}/{{ $order_service->created_at_year }}
         </div>
         <div class="os-cell aircraft-reg">
-            {{ $ordemServico->aeronave_matricula }}
+            {{ $order_service->aircraft_registration }}
         </div>
     </div>
 </div>
 
 <!-- Tabela de componentes -->
 <table class="components-table">
-    @if($ordemServico->getAirframe())
-        <tr>
-            <td class="component-type">AIRFRAME</td>
+    @if(!is_null($order_service->aircraft))
+        @foreach ($order_service->aircraft as $component)
+            <tr>
+            <td class="component-type">{{ $component->component_text }}</td>
             <td class="component-details">
-                SN: {{ $ordemServico->getAirframe()->serial_number ?? 'N/A' }}<br>
-                TSN: {{ $ordemServico->getAirframe()->tsn ?? 'N/A' }}<br>
-                Revisão: {{ $ordemServico->getAirframe()->revisao ?? 'N/A' }}
+                SN:
+                {{ $component->serial_number }}<br>
+                TSN:
+                @include('pdf.order-service.components.aircraft_component_status', [
+                    'status' => $component->tsn_status,
+                    'value' => $component->tsn,
+                ])<br>
+                Revisão:
+                @if($component->group === App\Constants::GROUP_PROPELLERS && !$order_service->has_propeller)
+                    N/A
+                @else
+                    {{ $order_service->revisions->filter(fn($item) => $item->group === $component->group)->values()->reduce(function ($acc, $item, $idx) use ($order_service, $component) {
+                        $acc .= "Manual:{$item->name} / Revision:{$item->manual} / PN:{$item->pn} ";
+                        if (
+                            $idx >= 0 &&
+                            $idx <
+                            $order_service->revisions->filter(fn($itemFilter) => $itemFilter->group === $component->group)->values()->count() - 1
+                        ) {
+                            $acc .= ' | ';
+                        }
+                        return $acc;
+                    }, '') }}
+                @endif
             </td>
             <td class="component-details">
-                Modelo: {{ $ordemServico->getAirframe()->modelo ?? 'N/A' }}<br>
-                TSO: {{ $ordemServico->getAirframe()->tso ?? 'N/A' }}
+                Modelo:
+                {{ $component->model }}<br>
+                TSO:
+                @include('pdf.order-service.components.aircraft_component_status', [
+                    'status' => $component->tso_status,
+                    'value' => $component->tso,
+                ])<br>
+                CSN:
+                @include('pdf.order-service.components.aircraft_component_status', [
+                    'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn_status,
+                    'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn,
+                ])
             </td>
             <td class="component-details">
-                Fabricante: {{ $ordemServico->getAirframe()->fabricante ?? 'N/A' }}<br>
-                CSO: {{ $ordemServico->getAirframe()->cso ?? 'N/A' }}
+                Fabricante:
+                {{ $component->manufacturer }}<br>
+                CSO:
+                @include('pdf.order-service.components.aircraft_component_status', [
+                    'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
+                    'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso,
+                ])
             </td>
             <td class="component-details">
-                Ano de Fabricação: {{ $ordemServico->getAirframe()->ano_fabricacao ?? 'N/A' }}
-            </td>
-        </tr>
-    @endif
-
-    @if($ordemServico->getLeftEngine())
-        <tr>
-            <td class="component-type">LEFT ENGINE</td>
-            <td class="component-details">
-                SN: {{ $ordemServico->getLeftEngine()->serial_number ?? 'N/A' }}<br>
-                TSN: {{ $ordemServico->getLeftEngine()->tsn ?? 'N/A' }}<br>
-                Revisão: {{ $ordemServico->getLeftEngine()->revisao ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Modelo: {{ $ordemServico->getLeftEngine()->modelo ?? 'N/A' }}<br>
-                TSO: {{ $ordemServico->getLeftEngine()->tso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Fabricante: {{ $ordemServico->getLeftEngine()->fabricante ?? 'N/A' }}<br>
-                CSO: {{ $ordemServico->getLeftEngine()->cso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Ano de Fabricação: {{ $ordemServico->getLeftEngine()->ano_fabricacao ?? 'N/A' }}
-            </td>
-        </tr>
-    @endif
-
-    @if($ordemServico->getRightEngine())
-        <tr>
-            <td class="component-type">RIGHT ENGINE</td>
-            <td class="component-details">
-                SN: {{ $ordemServico->getRightEngine()->serial_number ?? 'N/A' }}<br>
-                TSN: {{ $ordemServico->getRightEngine()->tsn ?? 'N/A' }}<br>
-                Revisão: {{ $ordemServico->getRightEngine()->revisao ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Modelo: {{ $ordemServico->getRightEngine()->modelo ?? 'N/A' }}<br>
-                TSO: {{ $ordemServico->getRightEngine()->tso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Fabricante: {{ $ordemServico->getRightEngine()->fabricante ?? 'N/A' }}<br>
-                CSO: {{ $ordemServico->getRightEngine()->cso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Ano de Fabricação: {{ $ordemServico->getRightEngine()->ano_fabricacao ?? 'N/A' }}
+                Ano de Fabricação:
+                {{ $order_service->year_manufacture }}
             </td>
         </tr>
-    @endif
-
-    @if($ordemServico->getLeftPropeller())
-        <tr>
-            <td class="component-type">LEFT PROPELLER</td>
-            <td class="component-details">
-                SN: {{ $ordemServico->getLeftPropeller()->serial_number ?? 'N/A' }}<br>
-                TSN: {{ $ordemServico->getLeftPropeller()->tsn ?? 'N/A' }}<br>
-                Revisão: {{ $ordemServico->getLeftPropeller()->revisao ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Modelo: {{ $ordemServico->getLeftPropeller()->modelo ?? 'N/A' }}<br>
-                TSO: {{ $ordemServico->getLeftPropeller()->tso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Fabricante: {{ $ordemServico->getLeftPropeller()->fabricante ?? 'N/A' }}<br>
-                CSO: {{ $ordemServico->getLeftPropeller()->cso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Ano de Fabricação: {{ $ordemServico->getLeftPropeller()->ano_fabricacao ?? 'N/A' }}
-            </td>
-        </tr>
-    @endif
-
-    @if($ordemServico->getRightPropeller())
-        <tr>
-            <td class="component-type">RIGHT PROPELLER</td>
-            <td class="component-details">
-                SN: {{ $ordemServico->getRightPropeller()->serial_number ?? 'N/A' }}<br>
-                TSN: {{ $ordemServico->getRightPropeller()->tsn ?? 'N/A' }}<br>
-                Revisão: {{ $ordemServico->getRightPropeller()->revisao ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Modelo: {{ $ordemServico->getRightPropeller()->modelo ?? 'N/A' }}<br>
-                TSO: {{ $ordemServico->getRightPropeller()->tso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Fabricante: {{ $ordemServico->getRightPropeller()->fabricante ?? 'N/A' }}<br>
-                CSO: {{ $ordemServico->getRightPropeller()->cso ?? 'N/A' }}
-            </td>
-            <td class="component-details">
-                Ano de Fabricação: {{ $ordemServico->getRightPropeller()->ano_fabricacao ?? 'N/A' }}
-            </td>
-        </tr>
+        @endforeach
     @endif
 </table>
 
@@ -410,40 +374,56 @@
 <div class="dates-section">
     <div class="dates-row">
         <div class="date-cell">
-            <div class="date-label">Data de Início: {{ $ordemServico->data_inicio->format('d/m/Y') }}</div>
+            @if (!is_null($order_service->date_start))
+                <div class="date-label"> Data de Início:
+                    {{ \Carbon\Carbon::parse($order_service->date_start)->format('d/m/Y')}}</div>
+            @endif
         </div>
         <div class="date-cell">
-            <div class="date-label">Término Previsto: {{ $ordemServico->termino_previsto->format('d/m/Y') }}</div>
+            <div class="date-label">
+                @if (!is_null($order_service->date_end))
+                    Término Previsto:
+                    {{ \Carbon\Carbon::parse($order_service->date_end)->format('d/m/Y')}}
+                @endif
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Título dos serviços -->
 <div class="services-title">RESUMO DE ITENS EXECUTADOS</div>
-
+@php
+    $items = $order_service->items->filter(fn ($item) => $item->type === App\Constants::SERVICE)->values();
+@endphp
 <!-- Lista de serviços -->
-@foreach($ordemServico->itensServico as $item)
+@foreach ($items as $key => $item)
     <div class="service-item no-break">
         <div class="service-row">
-            <div class="service-number">{{ $item->numero_item }}</div>
+            <div class="service-number">{{ $key + 1  }}</div>
             <div class="service-description">
-                <div class="service-desc-text">{{ $item->descricao }}</div>
+                <div class="service-desc-text">{{ $item->description }}</div>
                 <div class="service-details">
-                    @if($item->equipe)
-                        Equipe: {{ $item->equipe }}
+                    @if(isset($item->pn) && !is_null($item->pn))
+                        PN: {{ $item->pn }}
                     @endif
-                    @if($item->intervalo)
-                        | Intervalo: {{ $item->intervalo }}
+                    @if(isset($item->serial_number) && !is_null($item->serial_number))
+                        | SN: {{ $item->serial_number }}
                     @endif
-                    @if($item->horas)
-                        | Horas: {{ $item->horas }}
-                    @endif
-                    @if($item->ciclos)
-                        | Ciclos: {{ $item->ciclos }}
-                    @endif
-                    @if($item->observacoes)
-                        | {{ $item->observacoes }}
-                    @endif
+                        Intervalo:
+                    @include('pdf.order-service.components.maintenance_date', [
+                        'date' => $item->interval_quantity,
+                        'unit_measurement' => $item->interval_unit_measurement,
+                    ])
+                    | Horas:
+                    @include('pdf.order-service.components.maintenance_hours', [
+                        'hours' => $item->interval_hours,
+                    ])
+                    | Ciclos
+                    @include('pdf.order-service.components.maintenance_cycles', [
+                        'cycles' => $item->interval_cycles,
+                    ])
+                    Equipe:
+                    {{ $item?->team_text }}
                 </div>
             </div>
         </div>
@@ -453,10 +433,62 @@
 <!-- Declaração de aeronavegabilidade -->
 <div class="declaration-section no-break">
     <div class="declaration-title">DECLARAÇÃO DE AERONAVEGABILIDADE</div>
+    @if (isset($order_service->closed_at) && !is_null($order_service->closed_at))
+        <span class="text-center" style="font-size:14px;display:block">OS encerrada na data de:
+            {{\Carbon\Carbon::parse($order_service->closed_at)->format('d/m/Y')}}
+        </span>
+        <br/>
+    @endif
+
+    @if (isset($order_service->type_airworthiness) && !is_null($order_service->type_airworthiness))
+        @if ($order_service->type_airworthiness == 'airworthy')
+            Declaro para os devidos fins que os serviços efetuados através desta Ordem de Serviço foram
+            realizados de acordo com os Dados Técnicos e os Regulamentos aplicáveis e que após a
+            inspeção de
+            qualidade das partes afetadas foram consideradas aprovadas para retorno ao serviço.
+        @endif
+        @if ($order_service->type_airworthiness == 'airworthy_with_restriction')
+            Declaro para os devidos fins que os serviços efetuados através desta Ordem de Serviço foram
+            realizados de acordo com os Dados Técnicos e os Regulamentos aplicáveis e que após a
+            inspeção de
+            qualidade das partes afetadas foram consideradas aprovadas para retorno ao serviço, com a
+            ressalva conforme ficha de discrepância
+            @if (isset($file_discrepancy_signed) && !is_null($order_service->file_discrepancy_signed))
+                <a href="{{ $order_service->file_discrepancy_signed }}" style="color: #D24614"> (link da ficha)</a>
+            @endif
+        @endif
+        @if ($order_service->type_airworthiness == 'not_airworthy')
+            Declaro para os devidos fins que os serviços efetuados através desta Ordem de Serviço foram
+            realizados de acordo com os Dados Técnicos e os Regulamentos aplicáveis e que após a
+            inspeção de
+            qualidade das partes afetadas foram consideradas REPROVADAS para retorno ao serviço.
+            @if (isset($order_service->file_discrepancy_signed) && !is_null($order_service->file_discrepancy_signed))
+                <a href="{{ $order_service->file_discrepancy_signed }}" style="color: #D24614"> (link da ficha)</a>
+            @endif
+        @endif
+    @endif
+
+    <br/>
+    <br/>
+    <br/>
+
     <div class="signature-line"></div>
     <div class="signature-text">
         Assinatura do Inspetor Responsável<br>
-        SDCO
+        <p style="font-size: 14px;">
+            @if (!is_null($order_service->responsible_user))
+                {{ $order_service->responsible_user->name }}
+                @if (!is_null($order_service->responsible_user->license_1))
+                    {{ ' / Licença.:' . $order_service->responsible_user->license_1 }}
+                @endif
+                @if (!is_null($order_service->responsible_user->license_2))
+                    {{ ' / Codigo ANAC Nr.:' . $order_service->responsible_user->license_2 }}
+                @endif
+            @endif
+        </p>
+        @if (!is_null($order_service->local))
+            <p style="margin: 0">{{ $order_service->local }}</p>
+        @endif
     </div>
 </div>
 </body>
