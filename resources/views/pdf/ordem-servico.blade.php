@@ -1,5 +1,8 @@
+@php use App\DTO\OrderServiceDto;
+ use Illuminate\Support\Carbon;
+@endphp
 <?php
-/** @var \App\DTO\OrderServiceDto $order_service */
+/** @var OrderServiceDto $order_service */
 ?>
     <!DOCTYPE html>
 <html lang="pt-BR">
@@ -35,7 +38,7 @@
             page-break-inside: avoid;
         }
 
-        .header-row,.row {
+        .header-row, .row {
             display: table-row;
         }
 
@@ -97,28 +100,31 @@
             margin-bottom: 10px;
             page-break-inside: avoid;
         }
-        .container{
+
+        .container {
             display: table;
             width: 100%;
             table-layout: fixed;
             margin-bottom: 10px;
             page-break-inside: avoid;
         }
+
         .os-row {
             display: table-row;
         }
 
-        .os-cell,.cell {
+        .os-cell, .cell {
             display: table-cell;
             padding: 8px;
             vertical-align: top;
         }
+
         .half {
             width: 50%;
             text-align: left;
         }
 
-        .full{
+        .full {
             width: 100%;
         }
 
@@ -150,16 +156,19 @@
             page-break-inside: avoid;
             table-layout: fixed;
         }
-        .components-table tr{
+
+        .components-table tr {
             border: 1px solid #000;
+            max-height: fit-content;
         }
+
         .components-table th,
         .components-table td {
-
             padding: 4px;
             text-align: left;
-            font-size: 9px;
+            font-size: 10px;
             word-wrap: break-word;
+            max-height: fit-content;
         }
 
         .components-table th {
@@ -169,7 +178,7 @@
         }
 
         .component-type {
-            width: 15%;
+            width: 12%;
             font-weight: bold;
             text-align: center;
             vertical-align: middle;
@@ -178,6 +187,35 @@
         .component-details {
             width: auto;
             overflow: hidden;
+            vertical-align: top;
+        }
+
+        .w-25 {
+            width: 25%;
+        }
+
+        .w-20 {
+            width: 20%;
+        }
+
+        .w-38 {
+            width: 38%;
+        }
+
+        .w-48 {
+            width: 48%;
+        }
+
+        .w-50 {
+            width: 50%;
+        }
+
+        .w-75 {
+            width: 75%;
+        }
+
+        .w-100 {
+            width: 100%;
         }
 
         .dates-section {
@@ -313,7 +351,7 @@
                     {{ $order_service->number_form }}
                 @endif</div>
             <div class="doc-date">@if (isset($order_service->date_form) && !is_null($order_service->date_form))
-                    {{\Carbon\Carbon::parse($order_service->date_form)->format('d/m/Y')}}
+                    {{Carbon::parse($order_service->date_form)->format('d/m/Y')}}
                 @endif</div>
         </div>
     </div>
@@ -337,8 +375,8 @@
     @if(!is_null($order_service->aircraft))
         @foreach ($order_service->aircraft as $component)
             <tr>
-                <td class="component-type">{{ $component->component_text }}</td>
-                <td class="component-details">
+                <td class="component-type ">{{ $component->component_text }}</td>
+                <td class="component-details w-48">
                     <div class="container">
                         <div class="row">
                             <div class="cell half">SN:
@@ -347,7 +385,8 @@
                                 @include('components.aircraft_component_status', [
                                     'status' => $component->tsn_status,
                                     'value' => $component->tsn,
-                                ])</div>
+                                ])
+                            </div>
                             <div class="cell half"> Modelo:
                                 {{ $component->model }}<br>
                                 TSO:
@@ -379,19 +418,19 @@
                         </div>
                     </div>
                 </td>
-                <td class="component-details">
+                <td class="component-details w-20">
                     Fabricante:
                     {{ $component->manufacturer }}
-                   <br>
+                    <br>
                     CSN:
                     @include('components.aircraft_component_status', [
                         'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn_status,
                         'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn,
                     ])
                 </td>
-                <td class="component-details">
+                <td class="component-details w-20">
                     Ano de Fabricação:
-                    {{ $order_service->year_manufacture }}
+                    {{ $order_service->year_manufacture }}<br>
                     CSO:
                     @include('components.aircraft_component_status', [
                         'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
@@ -409,14 +448,14 @@
         <div class="date-cell">
             @if (!is_null($order_service->date_start))
                 <div class="date-label"> Data de Início:
-                    {{ \Carbon\Carbon::parse($order_service->date_start)->format('d/m/Y')}}</div>
+                    {{ Carbon::parse($order_service->date_start)->format('d/m/Y')}}</div>
             @endif
         </div>
         <div class="date-cell">
             <div class="date-label">
                 @if (!is_null($order_service->date_end))
                     Término Previsto:
-                    {{ \Carbon\Carbon::parse($order_service->date_end)->format('d/m/Y')}}
+                    {{ Carbon::parse($order_service->date_end)->format('d/m/Y')}}
                 @endif
             </div>
         </div>
@@ -455,6 +494,7 @@
                     @include('components.maintenance_cycles', [
                         'cycles' => $item->interval_cycles,
                     ])
+                        <br>
                     Equipe:
                     {{ $item?->team_text }}
                 </div>
@@ -468,7 +508,7 @@
     <div class="declaration-title">DECLARAÇÃO DE AERONAVEGABILIDADE</div>
     @if (isset($order_service->closed_at) && !is_null($order_service->closed_at))
         <span class="text-center" style="font-size:14px;display:block">OS encerrada na data de:
-            {{\Carbon\Carbon::parse($order_service->closed_at)->format('d/m/Y')}}
+            {{Carbon::parse($order_service->closed_at)->format('d/m/Y')}}
         </span>
         <br/>
     @endif
