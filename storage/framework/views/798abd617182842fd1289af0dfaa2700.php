@@ -105,12 +105,15 @@
             display: table;
             width: 100%;
             table-layout: fixed;
-            margin-bottom: 10px;
             page-break-inside: avoid;
         }
 
         .os-row {
             display: table-row;
+        }
+
+        .p {
+            padding: 8px;
         }
 
         .os-cell, .cell {
@@ -190,6 +193,10 @@
             vertical-align: top;
         }
 
+        .border {
+            border: 1px solid #000;
+        }
+
         .w-25 {
             width: 25%;
         }
@@ -200,6 +207,10 @@
 
         .w-38 {
             width: 38%;
+        }
+
+        .w-43 {
+            width: 43%;
         }
 
         .w-48 {
@@ -380,7 +391,7 @@
         <?php $__currentLoopData = $order_service->aircraft; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $component): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <tr>
                 <td class="component-type "><?php echo e($component->component_text); ?></td>
-                <td class="component-details w-48">
+                <td class="component-details w-43">
                     <div class="container">
                         <div class="row">
                             <div class="cell half">SN:
@@ -423,25 +434,37 @@
                         </div>
                     </div>
                 </td>
-                <td class="component-details w-20">
-                    Fabricante:
-                    <?php echo e($component->manufacturer); ?>
+                <td class="component-details w-25">
+                    <div class="container">
+                        <div class="row">
+                            <div class="cell full">
+                                Fabricante:
+                                <?php echo e($component->manufacturer); ?>
 
-                    <br>
-                    CSN:
-                    <?php echo $__env->make('components.aircraft_component_status', [
-                        'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn_status,
-                        'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn,
-                    ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                                <br>
+                                CSN:
+                                <?php echo $__env->make('components.aircraft_component_status', [
+                                    'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn_status,
+                                    'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn,
+                                ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                            </div>
+                        </div>
+                    </div>
                 </td>
                 <td class="component-details w-20">
-                    Ano de Fabricação:
-                    <?php echo e($order_service->year_manufacture); ?><br>
-                    CSO:
-                    <?php echo $__env->make('components.aircraft_component_status', [
-                        'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
-                        'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso,
-                    ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                    <div class="container">
+                        <div class="row">
+                            <div class="cell full">
+                                Ano de Fabricação:
+                                <?php echo e($order_service->year_manufacture); ?><br>
+                                CSO:
+                                <?php echo $__env->make('components.aircraft_component_status', [
+                                    'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
+                                    'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso,
+                                ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
+                            </div>
+                        </div>
+                    </div>
                 </td>
             </tr>
         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -503,7 +526,7 @@
                     <?php echo $__env->make('components.maintenance_cycles', [
                         'cycles' => $item->interval_cycles,
                     ], \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
-                        <br>
+                    <br>
                     Equipe:
                     <?php echo e($item?->team_text); ?>
 
