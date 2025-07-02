@@ -41,7 +41,6 @@
 
         .header-cell {
             display: table-cell;
-            border: 1px solid #000;
             padding: 5px;
             vertical-align: middle;
         }
@@ -51,7 +50,7 @@
             text-align: center;
             font-weight: bold;
             font-size: 14px;
-            border: 1px solid #ddd;
+
             padding:16px;
             vertical-align: middle;
 
@@ -60,6 +59,8 @@
         .company-cell {
             width: 60%;
             text-align: center;
+            border-right: 1px solid #ddd;
+            border-left: 1px solid #ddd;
         }
 
         .company-name {
@@ -75,6 +76,7 @@
         .doc-cell {
             width: 20%;
             text-align: center;
+
         }
 
         .doc-code {
