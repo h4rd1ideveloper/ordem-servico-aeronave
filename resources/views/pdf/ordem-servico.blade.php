@@ -1,7 +1,7 @@
 <?php
 /** @var \App\DTO\OrderServiceDto $order_service */
 ?>
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -35,7 +35,7 @@
             page-break-inside: avoid;
         }
 
-        .header-row {
+        .header-row,.row {
             display: table-row;
         }
 
@@ -51,7 +51,7 @@
             font-weight: bold;
             font-size: 14px;
 
-            padding:16px;
+            padding: 16px;
             vertical-align: middle;
 
         }
@@ -59,8 +59,8 @@
         .company-cell {
             width: 60%;
             text-align: center;
-            border-right: 1px solid #ddd;
-            border-left: 1px solid #ddd;
+            border-right: 1px solid #000;
+            border-left: 1px solid #000;
         }
 
         .company-name {
@@ -97,16 +97,34 @@
             margin-bottom: 10px;
             page-break-inside: avoid;
         }
-
+        .container{
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            margin-bottom: 10px;
+            page-break-inside: avoid;
+        }
         .os-row {
             display: table-row;
         }
 
-        .os-cell {
+        .os-cell,.cell {
             display: table-cell;
-            border: 1px solid #000;
             padding: 8px;
             vertical-align: top;
+        }
+        .half {
+            width: 50%;
+            text-align: left;
+        }
+
+        .full{
+            width: 100%;
+        }
+
+        .nowrap {
+            white-space: nowrap;
+            word-break: keep-all;
         }
 
         .os-number {
@@ -114,6 +132,7 @@
             text-align: center;
             font-weight: bold;
             font-size: 16px;
+            border-right: 1px solid #000;
         }
 
         .aircraft-reg {
@@ -121,6 +140,7 @@
             text-align: center;
             font-weight: bold;
             font-size: 16px;
+
         }
 
         .components-table {
@@ -130,10 +150,12 @@
             page-break-inside: avoid;
             table-layout: fixed;
         }
-
+        .components-table tr{
+            border: 1px solid #000;
+        }
         .components-table th,
         .components-table td {
-            border: 1px solid #000;
+
             padding: 4px;
             text-align: left;
             font-size: 9px;
@@ -154,8 +176,7 @@
         }
 
         .component-details {
-            width: 21.25%;
-            max-width: 21.25%;
+            width: auto;
             overflow: hidden;
         }
 
@@ -175,6 +196,7 @@
             display: table-cell;
             width: 50%;
             padding: 5px;
+            text-align: center;
         }
 
         .date-label {
@@ -275,7 +297,7 @@
 <!-- Cabeçalho principal (apenas primeira página) -->
 <div class="header">
     <div class="header-row">
-        <div class="header-cell logo-cell" align="center" >
+        <div class="header-cell logo-cell" align="center">
             <img
                 src="https://mxgo-storage.s3.us-east-1.amazonaws.com/documents/bLxQ3TIv5Po42S6saYqbnjx6fv5jzm9cOpbbqeJs.png"
                 alt="Logo da oficina" height="80" style="text-align:center;object-fit:contain">
@@ -283,7 +305,8 @@
         <div class="header-cell company-cell">
             <div class="company-name"> {{ $order_service->garage->name }}</div>
             <div class="company-address">{{ $order_service->garage->city }}/{{ $order_service->garage->state }} - COM
-                {{ $order_service->garage->licence_number }}/ANAC</div>
+                {{ $order_service->garage->licence_number }}/ANAC
+            </div>
         </div>
         <div class="header-cell doc-cell">
             <div class="doc-code"> @if (isset($order_service->number_form) && !is_null($order_service->number_form))
@@ -314,60 +337,68 @@
     @if(!is_null($order_service->aircraft))
         @foreach ($order_service->aircraft as $component)
             <tr>
-            <td class="component-type">{{ $component->component_text }}</td>
-            <td class="component-details">
-                SN:
-                {{ $component->serial_number }}<br>
-                TSN:
-                @include('pdf.order-service.components.aircraft_component_status', [
-                    'status' => $component->tsn_status,
-                    'value' => $component->tsn,
-                ])<br>
-                Revisão:
-                @if($component->group === App\Constants::GROUP_PROPELLERS && !$order_service->has_propeller)
-                    N/A
-                @else
-                    {{ $order_service->revisions->filter(fn($item) => $item->group === $component->group)->values()->reduce(function ($acc, $item, $idx) use ($order_service, $component) {
-                        $acc .= "Manual:{$item->name} / Revision:{$item->manual} / PN:{$item->pn} ";
-                        if (
-                            $idx >= 0 &&
-                            $idx <
-                            $order_service->revisions->filter(fn($itemFilter) => $itemFilter->group === $component->group)->values()->count() - 1
-                        ) {
-                            $acc .= ' | ';
-                        }
-                        return $acc;
-                    }, '') }}
-                @endif
-            </td>
-            <td class="component-details">
-                Modelo:
-                {{ $component->model }}<br>
-                TSO:
-                @include('pdf.order-service.components.aircraft_component_status', [
-                    'status' => $component->tso_status,
-                    'value' => $component->tso,
-                ])<br>
-                CSN:
-                @include('pdf.order-service.components.aircraft_component_status', [
-                    'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn_status,
-                    'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn,
-                ])
-            </td>
-            <td class="component-details">
-                Fabricante:
-                {{ $component->manufacturer }}<br>
-                CSO:
-                @include('pdf.order-service.components.aircraft_component_status', [
-                    'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
-                    'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso,
-                ])
-            </td>
-            <td class="component-details">
-                Ano de Fabricação:
-                {{ $order_service->year_manufacture }}
-            </td>
-        </tr>
+                <td class="component-type">{{ $component->component_text }}</td>
+                <td class="component-details">
+                    <div class="container">
+                        <div class="row">
+                            <div class="cell half">SN:
+                                {{ $component->serial_number }}<br>
+                                TSN:
+                                @include('components.aircraft_component_status', [
+                                    'status' => $component->tsn_status,
+                                    'value' => $component->tsn,
+                                ])</div>
+                            <div class="cell half"> Modelo:
+                                {{ $component->model }}<br>
+                                TSO:
+                                @include('components.aircraft_component_status', [
+                                    'status' => $component->tso_status,
+                                    'value' => $component->tso,
+                                ])
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="cell full nowrap">
+                                Revisão:
+                                @if($component->group === App\Constants::GROUP_PROPELLERS && !$order_service->has_propeller)
+                                    N/A
+                                @else
+                                    {{ $order_service->revisions->filter(fn($item) => $item->group === $component->group)->values()->reduce(function ($acc, $item, $idx) use ($order_service, $component) {
+                                        $acc .= "Manual:{$item->name} / Revision:{$item->manual} / PN:{$item->pn} ";
+                                        if (
+                                            $idx >= 0 &&
+                                            $idx <
+                                            $order_service->revisions->filter(fn($itemFilter) => $itemFilter->group === $component->group)->values()->count() - 1
+                                        ) {
+                                            $acc .= ' | ';
+                                        }
+                                        return $acc;
+                                    }, '') }}
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="component-details">
+                    Fabricante:
+                    {{ $component->manufacturer }}
+                   <br>
+                    CSN:
+                    @include('components.aircraft_component_status', [
+                        'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn_status,
+                        'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->csn,
+                    ])
+                </td>
+                <td class="component-details">
+                    Ano de Fabricação:
+                    {{ $order_service->year_manufacture }}
+                    CSO:
+                    @include('components.aircraft_component_status', [
+                        'status' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso_status,
+                        'value' => $component->group === App\Constants::GROUP_PROPELLERS ? null : $component->cso,
+                    ])
+                </td>
+            </tr>
         @endforeach
     @endif
 </table>
@@ -397,7 +428,7 @@
 @php
     $items = $order_service->items->filter(fn ($item) => $item->type === App\Constants::SERVICE)->values();
 @endphp
-<!-- Lista de serviços -->
+    <!-- Lista de serviços -->
 @foreach ($items as $key => $item)
     <div class="service-item no-break">
         <div class="service-row">
@@ -411,17 +442,17 @@
                     @if(isset($item->serial_number) && !is_null($item->serial_number))
                         | SN: {{ $item->serial_number }}
                     @endif
-                        Intervalo:
-                    @include('pdf.order-service.components.maintenance_date', [
+                    Intervalo:
+                    @include('components.maintenance_date', [
                         'date' => $item->interval_quantity,
                         'unit_measurement' => $item->interval_unit_measurement,
                     ])
                     | Horas:
-                    @include('pdf.order-service.components.maintenance_hours', [
+                    @include('components.maintenance_hours', [
                         'hours' => $item->interval_hours,
                     ])
                     | Ciclos
-                    @include('pdf.order-service.components.maintenance_cycles', [
+                    @include('components.maintenance_cycles', [
                         'cycles' => $item->interval_cycles,
                     ])
                     Equipe:
