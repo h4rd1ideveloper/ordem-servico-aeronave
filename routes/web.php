@@ -19,6 +19,8 @@ Route::get('/', function () {
 });
 Route::get('order-service', [OrdemServicoController::class, 'generateOrderServicePdf'])
     ->name('order-service.generate');
+Route::get('tec-register', [OrdemServicoController::class, 'generateTechnicalRegisterPdf'])
+    ->name('tec-register.generate');
 
 // Rotas para Ordem de Serviço
 Route::resource('ordem-servico', OrdemServicoController::class);
