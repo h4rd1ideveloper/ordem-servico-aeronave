@@ -55,6 +55,18 @@ class OrdemServicoController extends Controller
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="OS_' . $ordemServico->code . '.pdf"');
     }
+    /**
+     * @throws Exception
+     */
+    public function generateTechnicalRegisterPdf()
+    {
+        $randomId = rand();
+        $pdf = $this->pdfService->generateTechnicalRegisterPdf($randomId);
+
+        return response($pdf, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="TEC_' . $randomId . '.pdf"');
+    }
 
     public function downloadPdf($id)
     {

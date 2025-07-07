@@ -94,6 +94,56 @@ class PdfService
 
         return $pdfContent;
     }
+    public function generateTechnicalRegisterPdf(int $randomId)
+    {
+        // Renderizar o HTML usando Blade
+        $html = View::make('pdf.registro-tecnico')->render();
+        // Criar arquivo HTML temporário
+        $tempHtmlFile = storage_path('app/temp_tec_' . $randomId . '.html');
+        file_put_contents($tempHtmlFile, $html);
+
+        // Criar arquivo PDF temporário
+        $tempPdfFile = storage_path('app/temp_tec_' . $randomId . '.pdf');
+
+        // Comando wkhtmltopdf (usar wrapper no Docker se disponível)
+        $wkhtmltopdfCmd = env('WKHTMLTOPDF_CMD', 'wkhtmltopdf');
+        $headerHtml = View::make('components.header_registro_tecnico')->render();
+        $footerHtml = View::make('pdf.registro-tecnico')->render();
+
+        $tempHeaderFile = storage_path("app/temp_header_{$randomId}.html");
+        $tempFooterFile = storage_path("app/temp_footer_{$randomId}.html");
+        file_put_contents($tempHeaderFile, $headerHtml);
+        file_put_contents($tempFooterFile, $footerHtml);
+
+        $command = sprintf(
+            '%s --page-size A4 --margin-top 10mm --margin-bottom 10mm --margin-left 10mm --margin-right 10mm --encoding UTF-8 --disable-smart-shrinking --print-media-type --dpi 300 --enable-local-file-access %s %s',
+            $wkhtmltopdfCmd,
+            escapeshellarg($tempHtmlFile),
+            escapeshellarg($tempPdfFile)
+        );
+
+        // Executar comando
+        $output = [];
+        $returnCode = 0;
+        exec($command . ' 2>&1', $output, $returnCode);
+
+        if ($returnCode !== 0) {
+            // Limpar arquivos temporários
+            if (file_exists($tempHtmlFile)) unlink($tempHtmlFile);
+            if (file_exists($tempPdfFile)) unlink($tempPdfFile);
+
+            throw new \Exception('Erro ao gerar PDF: ' . implode("\n", $output));
+        }
+
+        // Ler conteúdo do PDF
+        $pdfContent = file_get_contents($tempPdfFile);
+
+        // Limpar arquivos temporários
+        if (file_exists($tempHtmlFile)) unlink($tempHtmlFile);
+        if (file_exists($tempPdfFile)) unlink($tempPdfFile);
+
+        return $pdfContent;
+    }
 
     public function generateOrdemServicoPdfWithPageBreaks(OrdemServico $ordemServico)
     {
